@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Информатика — 9 сынып Тест</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        h1, h2 { text-align: center; color: #2c3e50; }
+        .info-form, .variant-selection { margin-bottom: 25px; padding: 20px; background: #ecf0f1; border-radius: 8px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #bdc3c7; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
+        .btn { background-color: #3498db; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background 0.3s; }
+        .btn:hover { background-color: #2980b9; }
+        .btn:disabled { background-color: #95a5a6; cursor: not-allowed; }
+        .quiz-box { display: none; }
+        .question-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #2980b9; }
+        .options { list-style: none; padding: 0; }
+        .option-item { padding: 12px 15px; margin-bottom: 10px; background: #f8f9fa; border: 2px solid #e2e8f0; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+        .option-item:hover { background: #edf2f7; }
+        .option-item.correct { background-color: #d4edda !important; border-color: #28a745 !important; color: #155724 !important; font-weight: bold; }
+        .option-item.wrong { background-color: #f8d7da !important; border-color: #dc3545 !important; color: #721c24 !important; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 20px; }
+        .progress-bar { text-align: center; font-weight: bold; margin-bottom: 15px; color: #7f8c8d; }
+        #result-box { display: none; text-align: center; padding: 20px; background: #d4edda; color: #155724; border-radius: 8px; margin-top: 20px; }
+        #loading-text { display: none; font-weight: bold; color: #e67e22; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>9-сынып Информатика Тесті</h1>
+    
+    <div id="auth-box" class="info-form">
+        <h2>Оқушы мәліметтері</h2>
+        <div class="form-group">
+            <label for="student-name">Оқушының аты-жөні:</label>
+            <input type="text" id="student-name" placeholder="Мысалы: Омаров Нұрбол" required>
+        </div>
+        <div class="form-group">
+            <label for="student-class">Сыныбы:</label>
+            <input type="text" id="student-class" placeholder="Мысалы: 9 'Б'" required>
+        </div>
+        <div class="form-group">
+            <label for="lesson-subject">Пән:</label>
+            <input type="text" id="lesson-subject" value="Информатика" readonly>
+        </div>
+        <div class="form-group">
+            <label for="variant-select">Тест нұсқасын таңдаңыз:</label>
+            <select id="variant-select">
+                <option value="1">1-нұсқа</option>
+                <option value="2">2-нұсқа</option>
+                <option value="3">3-нұсқа</option>
+                <option value="4">4-нұсқа</option>
+                <option value="5">5-нұсқа</option>
+            </select>
+        </div>
+        <button class="btn" onclick="startQuiz()">Тестті бастау</button>
+    </div>
+
+    <div id="quiz-box" class="quiz-box">
+        <div class="progress-bar">Сұрақ: <span id="current-q-num">1</span> / 10</div>
+        <div id="question-container"></div>
+        <div class="nav-buttons">
+            <button class="btn" id="prev-btn" onclick="prevQuestion()">« Артқа</button>
+            <button class="btn" id="next-btn" onclick="nextQuestion()">Алға »</button>
+            <button class="btn" id="submit-btn" style="display:none; background-color: #27ae60;" onclick="finishQuiz()">Тестті аяқтау және жіберу</button>
+        </div>
+        <div id="loading-text">Нәтиже Google Таблицаға жіберілуде, күте тұрыңыз...</div>
+    </div>
+
+    <div id="result-box">
+        <h2>Тест аяқталды!</h2>
+        <p id="student-summary"></p>
+        <p style="font-size: 24px; font-weight: bold;">Балыңыз: <span id="score">0</span> / 10</p>
+        <p style="color: #27ae60; font-weight: bold;">✓ Сіздің нәтижеңіз мұғалімнің базасына сәтті жіберілді.</p>
+    </div>
+</div>
+
+<script>
+// ОСЫ ЖЕРГЕ GOOGLE APPS SCRIPT-ТЕН КӨШІРГЕН СІЛТЕМЕНІ ҚОЙЫҢЫЗ
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbww3Cw_AjiZen-fbobB5nRKQdXQ0J36k0Q1-23XVqvvR3nSs3P8zfYGQ9Ol_wqhNcebuQ/exec";
+
+const quizData = {
+    1: [
+        { q: "Жасанды интеллектінің медицинада қолданылуының басты этикалық мәселесі (жауапкершілік):", a: ["Қате диагноз қойылған жағдайда кім жауапты екендігі", "Құрылғылардың қымбаттылығы", "Емдеу уақытының қысқаруы", "Дәрігерлердің жұмыссыз қалуы"], c: 0 },
+        { q: "TCP/IP хаттамалар жиынтығындағы IP хаттамасының неге негізделген қызметі бар?", a: ["Деректер пакеттерін мекенжайға жеткізу (маршруттау)", "Деректердің қатесіз берілуін бақылау", "Файлдарды тасымалдау", "Веб-беттерді шифрлау"], c: 0 },
+        { q: "Берілген түйіннің IP-адресі 192.168.1.5, ал маскасы 255.255.255.0 болса, желі мекенжайын анықтаңыз:", a: ["192.168.1.0", "192.168.0.0", "192.168.1.255", "192.168.1.1"], c: 0 },
+        { q: "Файлдарды желіде тасымалдауға арналған арнайы хаттама:", a: ["FTP", "HTTPS", "DNS", "IP"], c: 0 },
+        { q: "Браузер мен веб-сервер арасындағы деректерді шифрлап, қауіпсіз жеткізетін хаттама:", a: ["HTTPS", "HTTP", "FTP", "TCP"], c: 0 },
+        { q: "DNS (Domain Name System) жүйесінің негізгі мақсаты не?", a: ["Домендік атауларды IP-мекенжайларға түрлендіру", "Желінің жылдамдығын арттыру", "Вирустардан қорғау", "Электрондық поштаны жөнелту"], c: 0 },
+        { q: "Желінің өткізу қабілеті дегеніміз не?", a: ["Уақыт бірлігінде желі арқылы берілетін ақпараттың максималды көлемі", "Желіге қосылған компьютерлер саны", "Кабельдің жалпы ұзындығы", "Деректерді сақтау көлемі"], c: 0 },
+        { q: "Егер желінің өткізу қабілеті 10 Мбит/с болса, 50 Мбит файлды жүктеуге қанша уақыт кетеді?", a: ["5 секунд", "10 секунд", "2 секунд", "50 секунд"], c: 0 },
+        { q: "Жасанды интеллектідегі 'Ашықтық' (Transparency) принципі нені білдіреді?", a: ["ЖИ жүйесінің шешімді қалай қабылдағанын түсіндіре алуы", "ЖИ кодтарының барлығына тегін болуы", "ЖИ-дің кез келген құрылғыда жұмыс істеуі", "Деректердің жасырын сақталуы"], c: 0 },
+        { q: "DNS иерархиясындағы ең жоғарғы деңгей қалай аталады?", a: ["Түбірлік домен (Root domain)", "Бірінші деңгейлі домен", "Ұлаттық домен", "Ішкі домен"], c: 0 }
+    ],
+    2: [
+        { q: "Қаржы саласында ЖИ қолдану кезіндегі 'Әділдік' (Fairness) мәселесіне не жатады?", a: ["Несие беруде нәсілдік немесе гендерлік кемсітушілікке жол бермеу", "Банк жүйесінің жылдам жұмыс істеуі", "Акциялар бағасын дәл болжау", "Қолма-қол ақшаны толығымен жою"], c: 0 },
+        { q: "Деректердің тұтастығы мен реттілігін қамтамасыз ететін көліктік деңгей хаттамасы:", a: ["TCP", "IP", "HTTP", "FTP"], c: 0 },
+        { q: "IP-адрес 10.10.16.5 EXP және маска 255.255.0.0 берілген. Желінің мекенжайын табыңыз:", a: ["10.10.0.0", "10.0.0.0", "10.10.16.0", "10.10.255.255"], c: 0 },
+        { q: "Сайттың мекенжай жолағындағы құлып белгісі (замок) қай хаттаманың белсенді екенін көрсетеді?", a: ["HTTPS", "FTP", "IP", "TCP"], c: 0 },
+        { q: "Берілген мекенжайдың қайсысы домендік атауға жатады?", a: ["www.mektep.edu.kz", "192.168.1.1", "C:\\Windows\\system32", "ftp://shkola"], c: 0 },
+        { q: "Желінің өткізу қабілетін өлшеудің негізгі бірлігі қандай?", a: ["бит/с (бит секунд)", "Байт", "Герц", "Метр/секунд"], c: 0 },
+        { q: "Жасанды интеллектінің әлеуметтік желілердегі теріс салдарының бірі:", a: ["Фейк ақпараттар мен 'жаңғырық камераларын' тудыруы", "Адамдардың тез тіл табысуы", "Жарнаманың сапасын жақсарту", "Посттарды автоматты түрде аудару"], c: 0 },
+        { q: "Желі маскасының мақсаты не?", a: ["IP-мекенжайдың қай бөлігі желіге, қай бөлігі түйінге тиесілі екенін ажырату", "Компьютерді бұзудан қорғау", "Интернеттің жылдамдығын шектеу", "Домендік атау беру"], c: 0 },
+        { q: "Желі арқылы 20 секундта 80 Мбит дерек жіберілді. Желінің өткізу қабілеті қандай?", a: ["4 Мбит/с", "1600 Мбит/с", "40 Мбит/с", "0.25 Мбит/с"], c: 0 },
+        { q: "Білім беруде ЖИ қолданудың ең басты оң әсері қандай?", a: ["Оқу үрдісін әр оқушыға жеке бейімдеу (персонализация)", "Мұғалімдерді толық алмастыру", "Бағалауды тоқтату", "Оқулықтарды жою"], c: 0 }
+    ],
+    3: [
+        { q: "Әлеуметтік желілерде ЖИ алгоритмдерінің 'ашық болмауы' қоғамға қалай әсер етеді?", a: ["Пікірлердің манипуляциялануына және бақылаудың қиындауына", "Желінің бұзылуына", "Пайдаланушылар санының азаюына", "Интернеттің қымбаттауына"], c: 0 },
+        { q: "Төмендегілердің қайсысы IPv4 мекенжайының дұрыс жазылуы?", a: ["172.16.254.1", "256.100.0.1", "192.168.1", "G.100.50.2"], c: 0 },
+        { q: "IP: 192.168.100.45, Маска: 255.255.255.0. Желі мекенжайы қандай?", a: ["192.168.100.0", "192.168.0.0", "192.168.100.255", "0.0.0.0"], c: 0 },
+        { q: "Интернет желісінің негізгі базалық хаттамаларының жиынтығы (стек):", a: ["TCP/IP", "HTTP/HTTPS", "FTP/SMTP", "DNS/IP"], c: 0 },
+        { q: "Сайтқа кіргенде IP-мекенжайды есте сақтамай, сөзбен жазуды мүмкін еткен жүйе:", a: ["DNS", "FTP", "DHCP", "NAT"], c: 0 },
+        { q: "Өткізу қабілеті 100 Мбит/с желі арқылы 500 Мбит файлды жүктеуге кететін уақыт:", a: ["5 секунд", "50 секунд", "0.2 секунд", "25 секунд"], c: 0 },
